@@ -1,0 +1,36 @@
+{
+    "stages": [
+        {
+            "name": "Week 1",
+            "camZoom": 0.9,
+            "background": "stageback",
+            "bgX": -600,
+            "bgY": -200,
+            "dadX": 0,
+            "dadY": 0,
+            "bfX": 0,
+            "bfY": 0,
+            "gfX": 0,
+            "gfY": 0,
+            "customLib": null,
+            "sprites": [
+                {
+                    "img": "stagefront",
+                    "id": 0,
+                    "x": -650,
+                    "y": 600,
+                    "scrollfactorX": 0.9,
+                    "scrollfactorY": 0.9
+                },
+                {
+                    "img": "stagecurtains",
+                    "id": 1,
+                    "x": -500,
+                    "y": -300,
+                    "scrollfactorX": 1.3,
+                    "scrollfactorY": 1.3
+                }
+            ]
+        }
+    ]
+}

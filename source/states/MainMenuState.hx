@@ -1,5 +1,8 @@
 package states;
 
+import flixel.util.FlxTimer;
+import flixel.tweens.FlxTween;
+import engine.VarHolder;
 import openfl.utils.Assets;
 import haxe.Json;
 import lime.app.Application;
@@ -23,6 +26,8 @@ class MainMenuState extends StateBase {
     var optionsGroup:FlxTypedGroup<FlxSprite>;
 
     var focusedOnMenu = false;
+    
+    var controlsLocked = false;
 
     var weeks:engine.Classes.Weeks;
 
@@ -121,12 +126,16 @@ class MainMenuState extends StateBase {
 
         // generate options menu
         optionsGroup = new FlxTypedGroup<FlxSprite>();
-        var testText = new FlxText(menuBG.x, 0, FlxG.width, "test of options");
+        var testText = new FlxText(menuBG.x, 0, menuBG.width, "Options coming soon!");
+        testText.setFormat("assets/fonts/pmFull.otf", 45, 0xFFFFFFFF, CENTER);
+        testText.y = 60;
+        testText.antialiasing = true;
+        testText.scrollFactor.set(0,1);
         optionsGroup.add(testText);
     }
 
     override function update(elapsed:Float) {
-        if (FlxG.keys.justPressed.DOWN) {
+        if (FlxG.keys.justPressed.DOWN && !controlsLocked) {
             FlxG.sound.play(Paths.sound("scrollMenu"));
             if (!focusedOnMenu) {
                 if (curSelected < menuItems.length - 1) {
@@ -139,8 +148,6 @@ class MainMenuState extends StateBase {
                             menuItems.members[i].animation.play("idle");
                         }
                     }
-
-                    curSelectedInMenu = 0;
 
                     switch (curSelected) {
                         case 0:
@@ -169,7 +176,7 @@ class MainMenuState extends StateBase {
                 }
             }
         }
-        if (FlxG.keys.justPressed.UP) {
+        if (FlxG.keys.justPressed.UP && !controlsLocked) {
             FlxG.sound.play(Paths.sound("scrollMenu"));
             if (!focusedOnMenu) {
                 if (curSelected > 0) {
@@ -182,8 +189,6 @@ class MainMenuState extends StateBase {
                             menuItems.members[i].animation.play("idle");
                         }
                     }
-
-                    curSelectedInMenu = 0;
 
                     switch (curSelected) {
                         case 0:
@@ -202,18 +207,44 @@ class MainMenuState extends StateBase {
             }
         }
 
-        if (FlxG.keys.justPressed.RIGHT) {
+        if (FlxG.keys.justPressed.RIGHT && !controlsLocked) {
             FlxG.sound.play(Paths.sound("scrollMenu"));
             focusedOnMenu = true;
             for (item in menuItems.members) {
                 item.alpha = 0.5;
             }
         }
-        if (FlxG.keys.justPressed.LEFT) {
+        if (FlxG.keys.justPressed.LEFT && !controlsLocked) {
             FlxG.sound.play(Paths.sound("scrollMenu"));
             focusedOnMenu = false;
             for (item in menuItems.members) {
                 item.alpha = 1;
+            }
+        }
+
+        if (FlxG.keys.justPressed.ENTER && focusedOnMenu && !controlsLocked) {
+            switch (curSelected) {
+                case 0:
+                    // selected story mode
+                    FlxG.sound.play(Paths.sound("confirmMenu"));
+                    FlxG.sound.music.fadeOut(2, 0);
+                    controlsLocked = true;
+                    VarHolder.weekLoaded = weeks.weeks[curSelectedInMenu];
+                    VarHolder.curSong = VarHolder.weekLoaded.songs[0];
+                    for (thing in storymodeGroup) {
+                        if (thing.ID == curSelectedInMenu) {
+                            new FlxTimer().start(0.05, (_) -> {
+                                if (thing.color == 0xFFFFFFFF) {
+                                    thing.color = 0xFF00BBFF;
+                                } else {
+                                    thing.color = 0xFFFFFFFF;
+                                }
+                            }, 0);
+                        }
+                    }
+                    new FlxTimer().start(2, (_) -> {
+                        FlxG.switchState(new PlayState());
+                    });
             }
         }
 
@@ -254,6 +285,19 @@ class MainMenuState extends StateBase {
                         }
                     }
             }
+        }
+        else {
+            for (item in storymodeGroup) {
+                item.alpha = 1;
+            }
+            for (item in freeplayGroup) {
+                item.alpha = 1;
+            }
+            for (item in optionsGroup) {
+                item.alpha = 1;
+            }
+            FlxG.camera.follow(storymodeGroup.members[0], LOCKON, 0.06);
+            curSelectedInMenu = 0;
         }
 
         super.update(elapsed);
