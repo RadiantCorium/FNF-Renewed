@@ -219,10 +219,12 @@ class PlayState extends StateBase {
                 break; // break out of the loop to save time and performance
             }
         }
-        
+
         // make sure we actually found the stage
         if (stage == null) {
-            throw new Exception("Could not find stage " + chart.song.stageName);
+            // if not, run the function again with the "Week 1" stage
+            chart.song.stageName = "Week 1";
+            loadStage();
         }
 
         // load the stage itself
